@@ -1,15 +1,15 @@
-# 12 Mega Festival (one continuous campus)
+# 12 Mega Festival
 
-A walkable top-down version of the 12matt3r festival and everything inside it. There is no room switching: the festival, The Complex, The Midway and 18 more rooms are laid out on one map and joined by roads. Walk from the festival gate east into the Complex street, along the trunk road and avenues, and down a spur into any room.
+Three separate areas, each a walkable top-down map built from overhead renders of the festival repo's own 3D scenes (roofs and ceilings hidden). Collision comes from each scene's wall and prop footprints.
 
-**The maps are the real scenes.** Each chunk is an overhead render of the festival repo's own 3D scene, made with the repo's `scripts/overhead-shots.mjs` approach (roofs and ceilings hidden). Collision comes from the scene's wall and prop footprints. Renders are 20 px per map unit. `maps/` holds the images and `maps.js` the frames and collision grids.
+- **Festival grounds** stands on its own. Walk into the dashed ring at the northeast Complex pavilion, or at the striped tent, to enter those areas.
+- **The Midway** is its own area: the arcade cabinets, each linking to the real game.
+- **The Complex** is its own area and the only one with the room loop. The Complex hub sits at the top; roads run from its entrance street down a west trunk road and along four avenues that end in an east road, so the network is a closed loop. All 18 other rooms hang off it (The Block with its trailer park, the merch boutique, the six artist worlds, the gallery, theater, VJ stage, rooftop, hidden room, and more). Cut any one road and every room is still reachable.
 
-**Objects were moved, not duplicated.** In a scratch copy of the Site repo the Complex (now northeast), Sofa King's lounge (now west) and the Backstage Vault (now northwest) were repositioned in the scene data and the festival re-rendered, so each exists once.
+**Objects were moved, not duplicated:** in a scratch copy of the Site repo the Complex, Sofa King's lounge and the Backstage Vault were repositioned in the scene data and the festival re-rendered.
 
-**Real links.** Gold rings open your live pages on `hungryshmorez.github.io/Site/` (EPKs, the 3D worlds, dj, lab, store, codex, links, every Midway cabinet, the Complex door row) plus Bandcamp and the Shopify store. The Jukebox lists the festival playlist from the Media site.
+**Real links:** gold rings open your live pages on `hungryshmorez.github.io/Site/` plus Bandcamp and the Shopify store. The Jukebox lists the playlist from the Media site.
 
-**Controls:** WASD / arrows / click to walk, Shift to run, E or click a station, M for the campus map, Enter to chat.
+**Controls:** WASD / arrows / click to walk, Shift to run, E or click a gold ring, M for the area map, Enter to chat.
 
-**Playable here:** basketball, shooting gallery and dunk tank (The Block), DODGE HELL (Midway), the Monkey's Paw.
-
-Run it: open `index.html`, or `python3 -m http.server` here. In a sandboxed viewer that blocks cross-site audio, the jukebox ↗ links open the tracks instead of playing in place.
+Run it: open `index.html`, or `python3 -m http.server` here. In a viewer that blocks cross-site audio, the jukebox links open the tracks instead of playing in place.

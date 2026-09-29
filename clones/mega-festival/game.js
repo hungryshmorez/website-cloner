@@ -11,10 +11,10 @@ const DECK_MODES = [['Four on the floor', [1, 0, 0, 0]], ['Broken beat', [1, 0, 
 
 /* ---------- state ---------- */
 const PX = 20; // world pixels per map unit
-const C = W; // the campus
+const AREAS = W.areas; let C = AREAS.festival; // the current area
 const COLORS = ['#fd9978', '#fec837', '#749593', '#a78bfa', '#f472b6', '#60a5fa'];
 const me = { name: 'you', x: 0, y: 0, color: COLORS[0], dir: 0, step: 0, target: null, say: '', sayT: 0, style: 'plain' };
-let started = false, muted = false, deck = 0, vjHue = 190, hasKey = store.get('mf.key') === '1', flash = 0, time = 0, panelOpen = false, mg = null, near = null, pending = null, mapOpen = false;
+let started = false, muted = false, deck = 0, vjHue = 190, hasKey = store.get('mf.key') === '1', flash = 0, time = 0, panelOpen = false, mg = null, near = null, pending = null, mapOpen = false, portalArmed = true;
 const crowd = [], cam = { x: 0, y: 0 }, keys = new Set(), IMG = {};
 let chatting = false, seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 const scene = { name: 'Campus' };
@@ -26,12 +26,18 @@ function blocked(px, py) {
   return C.grid[j * C.gw + i] === 1;
 }
 function buildCrowd() {
+  crowd.length = 0; if (C.id !== 'festival') return;
   ['Mo', 'Juno', 'kiwi', 'Bex', 'Tao', 'Ziggy', 'nova', 'Pip'].forEach((name, i) => {
     let x, y, n = 0; do { x = (-20 + rnd() * 40) * PX; y = (-8 + rnd() * 28) * PX; n++; } while (blocked(x, y) && n < 80);
     crowd.push({ name, x, y, color: COLORS[i % COLORS.length], dir: 0, step: 0, target: null, say: '', sayT: 0, style: 'plain', wait: rnd() * 3 });
   });
 }
 function notice(text) { const li = document.createElement('li'); li.textContent = text; li.style.color = '#fec837'; $('log').append(li); while ($('log').children.length > 5) $('log').firstChild.remove(); setTimeout(() => li.remove(), 12000); }
+
+function switchArea(id, tx, tz) {
+  C = AREAS[id]; me.x = tx * PX; me.y = tz * PX; me.target = null; pending = null; portalArmed = false; mapOpen = false; buildCrowd();
+  notice(C.name + (id === 'complex' ? ' — every room is in here, joined by the roads. Press M for the map.' : id === 'midway' ? ' — every game under one big top.' : ''));
+}
 
 /* ---------- audio ---------- */
 let actx, master, beatStep = 0, beatTimer = 0;
@@ -92,7 +98,7 @@ function showPanel(title, role, body, extra) {
 function closePanel() { $('panel').hidden = true; panelOpen = false; }
 
 /* ---------- interactions ---------- */
-const TRACKS = [['SLUSHWAVE 2025 (trailer)', 'slushwave-2025-trailer'], ['first ever vaporwave song', 'first-ever-vaporwave'], ['MindSpring Memories — Tranquility Wave', 'mindspring-tranquility'], ['desert sand feels warm at night', 'desert-sand'], ['t e l e p a t h', 'telepath'], ['t e l e p a t h II', 'telepath-2'], ['Illusionary', 'illusionary'], ['Illusionary (dub)', 'illusionary-dub'], ['Second Sight — At Dawn', 'second-sight-at-dawn'], ['Saturn 1985 — In the Air Tonight', 'saturn-1985'], ['S O A R E R', 'soarer'], ['channel 71 — Shine', 'channel71-shine'], ['channel 71 — sentiment (dub)', 'channel71-sentiment-dub'], ['neckbomb — Emerald', 'neckbomb-emerald'], ['neckbomb — Emerald II', 'neckbomb-emerald-2'], ['彼方 (kanata)', 'kanata']].map(([t, f]) => ({ title: t, url: C.MEDIA + f + '.mp3' }));
+const TRACKS = [['SLUSHWAVE 2025 (trailer)', 'slushwave-2025-trailer'], ['first ever vaporwave song', 'first-ever-vaporwave'], ['MindSpring Memories — Tranquility Wave', 'mindspring-tranquility'], ['desert sand feels warm at night', 'desert-sand'], ['t e l e p a t h', 'telepath'], ['t e l e p a t h II', 'telepath-2'], ['Illusionary', 'illusionary'], ['Illusionary (dub)', 'illusionary-dub'], ['Second Sight — At Dawn', 'second-sight-at-dawn'], ['Saturn 1985 — In the Air Tonight', 'saturn-1985'], ['S O A R E R', 'soarer'], ['channel 71 — Shine', 'channel71-shine'], ['channel 71 — sentiment (dub)', 'channel71-sentiment-dub'], ['neckbomb — Emerald', 'neckbomb-emerald'], ['neckbomb — Emerald II', 'neckbomb-emerald-2'], ['彼方 (kanata)', 'kanata']].map(([t, f]) => ({ title: t, url: W.MEDIA + f + '.mp3' }));
 let player = null;
 function linkBox(links) {
   const box = document.createElement('div'); box.style.cssText = 'display:flex;flex-direction:column;gap:6px';
@@ -129,7 +135,7 @@ function interact() {
   if (id === 'dodge') return startMg(dodge());
   const extra = document.createElement('div'); extra.style.cssText = 'display:flex;flex-direction:column;gap:6px';
   if (t.links) extra.append(linkBox(t.links));
-  showPanel(t.label, t.chunk ? C.NAMES[t.chunk] : null, t.text || 'Have a look around.', extra);
+  showPanel(t.label, t.chunk ? W.NAMES[t.chunk] : null, t.text || 'Have a look around.', extra);
 }
 function messageBoard(links) {
   let msgs = []; try { msgs = JSON.parse(store.get('mf.board') || '[]'); } catch { msgs = []; }
@@ -228,6 +234,9 @@ function update(dt) {
   });
   [me, ...crowd].forEach(p => { p.sayT = Math.max(0, p.sayT - dt); });
   const ux = me.x / PX, uz = me.y / PX;
+  const portal = C.portals.find(p => Math.hypot(p.x - ux, p.z - uz) < p.r);
+  if (!portal) portalArmed = true;
+  if (portal && portalArmed && !mg && !panelOpen) { portalArmed = false; switchArea(portal.to, portal.tx, portal.tz); sfx(440, .1, 'triangle'); return; }
   near = null; let bd = 2.0; C.stations.forEach(t => { const d = Math.hypot(t.x - ux, t.z - uz); if (d < bd) { bd = d; near = t; } });
   $('prompt').hidden = !near || panelOpen || !!mg; if (near) $('prompt').textContent = 'E / tap — ' + near.label; $('act').hidden = !near || panelOpen || !!mg || !matchMedia('(pointer:coarse)').matches;
   const s = scale(), f = C.frame, vw = cv.width / s, vh = cv.height / s;
@@ -255,6 +264,7 @@ function draw() {
   C.chunks.forEach(c => { const fr = c.frame; if (!inView(fr[0], fr[1], fr[2], fr[3])) return; const im = imgFor(c); if (im.complete && im.naturalWidth) { ctx.imageSmoothingEnabled = true; ctx.drawImage(im, fr[0] * PX, fr[1] * PX, fr[2] * PX, fr[3] * PX); ctx.imageSmoothingEnabled = false; } else { ctx.fillStyle = '#10121c'; ctx.fillRect(fr[0] * PX, fr[1] * PX, fr[2] * PX, fr[3] * PX); } });
   C.roads.forEach(r => { if (!inView(r.x, r.z, r.w, r.h)) return; ctx.fillStyle = '#23263a'; ctx.fillRect(r.x * PX, r.z * PX, r.w * PX, r.h * PX); ctx.fillStyle = '#fec83755'; if (r.w > r.h) ctx.fillRect(r.x * PX, (r.z + r.h / 2) * PX - 1, r.w * PX, 2); else ctx.fillRect((r.x + r.w / 2) * PX - 1, r.z * PX, 2, r.h * PX); });
   const fx = C.chunks[0]; if (fx.id === 'festival') { const g = ctx.createRadialGradient(0, -20 * PX, 0, 0, -20 * PX, 14 * PX); g.addColorStop(0, `hsla(${vjHue},90%,60%,${.12 + beat() * .22})`); g.addColorStop(1, 'transparent'); ctx.fillStyle = g; ctx.fillRect(-20 * PX, -34 * PX, 40 * PX, 34 * PX); }
+  C.portals.forEach(p => { ctx.strokeStyle = '#fec837'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x * PX, p.z * PX, p.r * PX * .8, 0, 7); ctx.stroke(); ctx.setLineDash([]); tag(p.label, p.x * PX, p.z * PX - 26, '#fec837'); });
   C.chunks.forEach(c => { const fr = c.frame; if (inView(fr[0], fr[1], fr[2], 6)) tag(c.name, (fr[0] + fr[2] / 2) * PX, (fr[1] + 1) * PX, '#fec837'); });
   C.stations.forEach(t => { if (!inView(t.x - 4, t.z - 4, 8, 8)) return; if (t === near || t === pending) { ctx.strokeStyle = '#fec837'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(t.x * PX, t.z * PX, 14 + beat() * 3, 0, 7); ctx.stroke(); } else if (t.links) { ctx.strokeStyle = '#fec83777'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(t.x * PX, t.z * PX, 9, 0, 7); ctx.stroke(); } if (t.links || t.role || t.kind === 'person' || t.kind === 'epk' || t.kind === 'sign') tag(t.label, t.x * PX, t.z * PX + 12, '#fff'); });
   [me, ...crowd].sort((a, b) => a.y - b.y).forEach(drawPerson);
@@ -279,8 +289,8 @@ let last = performance.now();
 function resize() { cv.width = innerWidth; cv.height = innerHeight; } addEventListener('resize', resize); resize();
 function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; if (started) update(dt); else { time += dt; cam.x = -20 * PX; cam.y = -28 * PX; } draw(); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
-if (location.hash === '#debug') window.__mf = { C, me, cam, scale, interact: () => interact(), PX, blocked, get near() { return near && near.id; } };
+if (location.hash === '#debug') window.__mf = { get C() { return C; }, AREAS, switchArea, me, cam, scale, interact: () => interact(), PX, blocked, get near() { return near && near.id; } };
 COLORS.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.style.background = c; b.setAttribute('role', 'radio'); b.setAttribute('aria-label', 'Colour ' + (i + 1)); b.setAttribute('aria-checked', i === 0); b.onclick = () => { me.color = c; [...$('swatches').children].forEach(x => x.setAttribute('aria-checked', x === b)); }; $('swatches').append(b); });
 $('name').value = store.get('mf.name') || '';
-$('join').onsubmit = e => { e.preventDefault(); me.name = $('name').value.trim() || 'wanderer'; store.set('mf.name', me.name); $('join').remove(); ['hud', 'log'].forEach(id => { $(id).hidden = false; }); started = true; startAudio(); me.x = C.spawn[0] * PX; me.y = C.spawn[1] * PX; buildCrowd(); speak(me, 'made it'); notice('One continuous campus: follow the gold-lined roads. Press M for the map, Shift to run. Gold rings open real links.'); };
+$('join').onsubmit = e => { e.preventDefault(); me.name = $('name').value.trim() || 'wanderer'; store.set('mf.name', me.name); $('join').remove(); ['hud', 'log'].forEach(id => { $(id).hidden = false; }); started = true; startAudio(); me.x = C.spawn[0] * PX; me.y = C.spawn[1] * PX; buildCrowd(); speak(me, 'made it'); notice('Festival grounds. Gold-ringed spots open your real pages. Walk into the dashed rings to enter the Midway or the Complex. Shift runs, M is the map.'); };
 })();
