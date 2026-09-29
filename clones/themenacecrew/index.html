@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menace Crew — MENACE OS 98 (fan rebuild)</title>
+<meta name="description" content="A Windows 98 style desktop homepage: wiki, arcade, merch and streams in draggable windows.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23008080'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%23ff2d78'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="crt">
+<div id="boot" class="boot" aria-live="polite"></div>
+<main class="desktop" id="desktop">
+  <div class="desktop-icons" id="icons"></div>
+  <div id="windows"></div>
+</main>
+<div class="start-menu bevel-out" id="startMenu" hidden>
+  <div class="rail">MENACE OS 98</div>
+  <div class="items" id="startItems"></div>
+</div>
+<nav class="taskbar" aria-label="Taskbar">
+  <button class="btn primary" id="startBtn" aria-haspopup="true" aria-expanded="false">▣ Start</button>
+  <div class="row" id="tasks" style="flex-wrap:nowrap;gap:4px"></div>
+  <span class="spacer"></span>
+  <div class="tray">
+    <button class="btn" id="crtBtn" title="Toggle CRT effect" aria-pressed="true">CRT</button>
+    <button class="btn" id="sndBtn" title="Toggle UI sounds" aria-pressed="true">♪</button>
+    <span id="clock">--:--</span>
+  </div>
+</nav>
+<script src="app.js"></script>
+</body>
+</html>
