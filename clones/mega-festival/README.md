@@ -1,12 +1,11 @@
-# 12 Mega Festival (city rebuild)
+# 12 Mega Festival (city)
 
-A 2D pixel-city version of the 12matt3r festival, laid out from the festival's own map data (`Site/src/data/worldmaps.js`, `destinations.js`).
+A walkable top-down version of the 12matt3r festival. The map is the festival's own scene, not a redraw: `festival.jpg` and `arcade.jpg` are overhead renders made by `Site/scripts/overhead-shots.mjs` (orthographic camera, same framing the script uses), so image pixels line up with the map units in `Site/src/data/worldmaps.js`.
 
-- **Festival grounds:** main stage with LED screens and decks (change the beat), the pit, the six artists as walk-up stations, merch tent, lounge, props dealer, campfire, tailgate truck, photo booth, message board, VJ board, porta johns, a hidden keycard and a locked backstage vault.
-- **The Complex:** checkerboard hub with a heart orb, doors to the Midway and the Immersive Theater.
-- **The Midway (arcade):** basketball hoop, shooting gallery, dunk tank and DODGE HELL are playable. The Monkey's Paw grants wishes. The four other cabinets are marked out of order.
-- **Immersive Theater:** a screen that plays a house reel.
+- **Festival grounds:** the real layout. Artists, vendors, the decks, the pit, the photo booth, message board, a hidden keycard and the locked backstage vault sit at their map coordinates. Collision shapes (stage, Complex, striped tent, car, Lab, camp room) were read off the render.
+- **The Midway (striped tent):** uses the arcade world's own overhead render. Basketball, shooting gallery, dunk tank and DODGE HELL are playable; the Monkey's Paw grants wishes. The four other cabinets are marked out of order.
+- **The Complex (white building):** the interior is built here: a checkerboard hub with a heart orb, artist frames, and a door to the Immersive Theater.
 
-Artist text is taken from the project's own data. Art, audio and code are written from scratch; the 3D artist worlds are not rebuilt.
+Re-render the maps with `node scripts/overhead-shots.mjs festival arcade` in the Site repo.
 
 Run it: open `index.html`, or `python3 -m http.server` here. Controls: WASD/arrows or click to move, E to interact, Enter to chat.
