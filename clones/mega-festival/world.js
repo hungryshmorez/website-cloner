@@ -19,6 +19,7 @@ window.WORLD = (() => {
       seen = flood();
     });
   };
+  const solidRect = (w, x, z, pw, ph) => { for (let j = Math.floor((z - w.frame[1]) / CELL); j <= Math.floor((z + ph - w.frame[1]) / CELL); j++) for (let i = Math.floor((x - w.frame[0]) / CELL); i <= Math.floor((x + pw - w.frame[0]) / CELL); i++) if (i >= 0 && j >= 0 && i < w.gw && j < w.gh) w.grid[j * w.gw + i] = 1; };
   const make = (id, name, o = {}) => { const m = M[id]; const w = { id, name, frame: m.frame, gw: m.gw, gh: m.gh, cell: CELL, grid: decode(m), stations: [], doors: [], zones: [], spawn: null, blurb: '', ...o }; worlds[id] = w; return w; };
   const finish = w => {
     if (!w.spawn) { const cx = w.frame[0] + w.frame[2] / 2; let best = null; for (let z = w.frame[1] + w.frame[3] - 2; z > w.frame[1]; z -= 1) for (let d = 0; d < w.frame[2] / 2; d += 1) for (const s of [d, -d]) { const x = cx + s; const i = Math.floor((x - w.frame[0]) / CELL), j = Math.floor((z - w.frame[1]) / CELL); if (!w.grid[j * w.gw + i] && !best) best = [x, z]; } w.spawn = best || [cx, w.frame[1] + w.frame[3] / 2]; }
@@ -82,6 +83,17 @@ window.WORLD = (() => {
    ['merch', 'The Merch Tent', -24.5, 4, 'store'], ['kiosk', 'Tools kiosk', -24.5, -1], ['lounge', 'The Lounge', -24.5, 11], ['dealer', 'Props dealer', -13, -13], ['vault', 'Backstage vault', -15, -20], ['keycard', 'Hidden keycard', 22, 20], ['porta', "Porta John's", 24, 10], ['lab', 'The Lab', 0, 22], ['booth', 'Photo booth', -6, 21], ['board', 'Message board', -14, 20], ['bench', 'Park bench', -10, 20], ['vj', 'VJ board', 5, 18]]
     .forEach(([id, label, x, z, enter]) => f.stations.push(st(id, label, x, z, enter ? { enter } : {})));
   f.doors.push({ x: 18.4, z: -2.2, r: 1.8, to: 'complex', label: 'Enter The Complex' }, { x: 20.4, z: -10, r: 1.8, to: 'arcade', label: 'Enter The Midway' });
+  // Placed from the owner's drawn marks on the map (approximate spots).
+  f.props = [
+    { kind: 'vault', x: -22, z: -28, w: 5, h: 6, label: 'BACKSTAGE VAULT' },
+    { kind: 'facade', x: 18.6, z: -28.5, w: 6, h: 3, label: 'THE COMPLEX' },
+    ...[[-22.5, -10], [-19.5, -7.2], [-16.5, -10.2], [-14, -6.2], [-21.5, -4.8], [-17.5, -4.2]].map(([x, z]) => ({ kind: 'couch', x, z, w: 3, h: 1.4, label: '' }))
+  ];
+  f.props.forEach(p => solidRect(f, p.x, p.z, p.w, p.h));
+  f.stations = f.stations.filter(s => s.id !== 'vault');
+  f.stations.push(st('vault', 'Backstage vault', -19.5, -21.4), st('sofa-lounge', 'Sofa King lounge', -18, -8, { text: 'A ring of beat-up couches. Sofa King Sad Boi holds court on the purple stage across the grounds.' }));
+  f.doors.push({ x: 21.6, z: -25.6, r: 1.6, to: 'complex', label: 'Enter The Complex' });
+  f.zones.push([-25, -13, 14, 11, 'SOFA KING LOUNGE'], [-25, -30, 8, 9, 'BACKSTAGE']);
   finish(f);
   return { worlds, order: Object.keys(worlds) };
 })();

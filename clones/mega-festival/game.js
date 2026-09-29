@@ -264,6 +264,12 @@ function draw() {
   if (scene.id === 'festival') { const g = ctx.createRadialGradient(0, -20 * PX, 0, 0, -20 * PX, 14 * PX); g.addColorStop(0, `hsla(${vjHue},90%,60%,${.12 + beat() * .22})`); g.addColorStop(1, 'transparent'); ctx.fillStyle = g; ctx.fillRect(-20 * PX, -34 * PX, 40 * PX, 34 * PX); }
   scene.doors.forEach(d => { ctx.strokeStyle = d.exit ? '#ffffff88' : '#fec837'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(d.x * PX, d.z * PX, d.r * PX * .8, 0, 7); ctx.stroke(); ctx.setLineDash([]); if (!d.exit) tag(d.label, d.x * PX, d.z * PX - 26, '#fec837'); });
   scene.stations.forEach(st => { if (st === near) { ctx.strokeStyle = '#fec837'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(st.x * PX, st.z * PX, 14 + beat() * 3, 0, 7); ctx.stroke(); } if (ARTIST[st.id] || st.enter || st.kind === 'person' || st.kind === 'epk') tag(st.label, st.x * PX, st.z * PX + 12, '#fff'); });
+  (scene.props || []).forEach(p => {
+    const x = p.x * PX, y = p.z * PX, w = p.w * PX, h = p.h * PX;
+    if (p.kind === 'couch') { ctx.fillStyle = '#4a4a86'; ctx.fillRect(x, y, w, h); ctx.fillStyle = '#5c5ca6'; ctx.fillRect(x, y, w, h * .35); return; }
+    ctx.fillStyle = p.kind === 'vault' ? '#3a3f49' : '#5a3a2f'; ctx.fillRect(x, y, w, h); ctx.fillStyle = p.kind === 'vault' ? (hasKey ? '#39ff14' : '#ff0055') : '#ff2d78'; ctx.fillRect(x + w / 2 - 6, y + h - 8, 12, 8);
+    ctx.strokeStyle = '#0008'; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h); tag(p.label, x + w / 2, y + 6, '#fec837');
+  });
   [me, ...crowd].sort((a, b) => a.y - b.y).forEach(drawPerson);
   [me, ...crowd].forEach(p => tag(p.name, p.x, p.y + 6, p === me ? '#fec837' : '#fff')); [me, ...crowd].forEach(bubble);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
