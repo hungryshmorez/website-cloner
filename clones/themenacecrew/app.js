@@ -76,56 +76,6 @@ function drag(win, handle) {
 }
 
 /* ---------- apps ---------- */
-function sweeper(body, o) {
-  const LV = { Rookie: [9, 9, 10], Menace: [14, 12, 26], Crashout: [18, 14, 48] };
-  const colors = ['', '#00f', '#080', '#f00', '#008', '#800', '#088', '#000', '#888'];
-  let g, state, secs, timer, flags;
-  const sel = el('select', { className: 'btn' }, Object.keys(LV).map(k => el('option', { textContent: k })));
-  const face = el('button', { className: 'btn', textContent: '🙂', ariaLabel: 'Reset' });
-  const mc = el('span', { className: 'lcd' }), tc = el('span', { className: 'lcd' });
-  const board = el('div', { style: 'display:grid;overflow:auto', oncontextmenu: e => e.preventDefault() });
-  body.append(el('div', { className: 'stack', style: 'user-select:none' }, [sel, el('div', { className: 'bevel-in row', style: 'justify-content:space-between;padding:4px;flex-wrap:nowrap' }, [mc, face, tc]), el('div', { className: 'bevel-in', style: 'padding:2px;overflow:auto' }, [board]), el('small', { textContent: 'Left-click sweep · right-click flag' })]));
-  function cfg() { return LV[sel.value]; }
-  function reset() {
-    const [w, h] = cfg(); clearInterval(timer); state = 'fresh'; secs = 0; flags = 0;
-    g = Array.from({ length: h }, () => Array.from({ length: w }, () => ({ m: 0, r: 0, f: 0, n: 0 })));
-    face.textContent = '🙂'; draw();
-  }
-  function seed(cx, cy) {
-    const [w, h, m] = cfg(); let placed = 0;
-    while (placed < m) { const x = Math.random() * w | 0, y = Math.random() * h | 0; if (g[y][x].m || (Math.abs(x - cx) < 2 && Math.abs(y - cy) < 2)) continue; g[y][x].m = 1; placed++; }
-    g.forEach((row, y) => row.forEach((c, x) => { for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) c.n += g[y + j]?.[x + i]?.m ? 1 : 0; }));
-    state = 'play'; timer = setInterval(() => { secs = Math.min(secs + 1, 999); draw(); }, 1000);
-  }
-  function reveal(x, y) {
-    const st = [[x, y]];
-    while (st.length) { const [a, b] = st.pop(), c = g[b]?.[a]; if (!c || c.r || c.f) continue; c.r = 1; if (!c.n) for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) st.push([a + i, b + j]); }
-  }
-  function click(x, y) {
-    if (state === 'won' || state === 'dead') return;
-    if (state === 'fresh') seed(x, y);
-    const c = g[y][x]; if (c.f || c.r) return;
-    if (c.m) { g.flat().forEach(k => { if (k.m) k.r = 1; }); c.boom = 1; state = 'dead'; clearInterval(timer); face.textContent = '💀'; beep(90, .3, 'sawtooth'); }
-    else { reveal(x, y); beep(500, .03); if (g.flat().every(k => k.r || k.m)) { state = 'won'; clearInterval(timer); face.textContent = '😎'; beep(1200, .2); } }
-    draw();
-  }
-  function draw() {
-    const [w, , m] = cfg();
-    board.style.gridTemplateColumns = `repeat(${w},22px)`;
-    board.replaceChildren(...g.flatMap((row, y) => row.map((c, x) => {
-      const b = el('button', { className: 'mine' + (c.r ? ' open' : '') + (c.boom ? ' boom' : ''), textContent: c.r ? (c.m ? '💀' : c.n || '') : c.f ? '🚩' : '' });
-      if (c.r && c.n && !c.m) b.style.color = colors[c.n];
-      b.onclick = () => click(x, y);
-      b.oncontextmenu = e => { e.preventDefault(); if (!c.r && state !== 'dead' && state !== 'won') { c.f ^= 1; draw(); } };
-      return b;
-    })));
-    flags = g.flat().filter(k => k.f).length;
-    mc.textContent = String(Math.max(m - flags, 0)).padStart(3, '0'); tc.textContent = String(secs).padStart(3, '0');
-  }
-  sel.onchange = reset; face.onclick = reset; reset();
-  o.app.dispose = () => clearInterval(timer);
-}
-
 function soundboard(body) {
   body.append(el('div', { className: 'grid' }, sounds.map(([n, f, t]) => el('button', { className: 'btn big', textContent: n, style: 'padding:14px 6px', onclick: () => beep(f, .35, t, .12) }))));
 }
@@ -142,7 +92,7 @@ function tv(body) {
 }
 
 function arcade(body) {
-  body.append(el('div', { className: 'stack' }, [el('h2', { className: 'pixel-title', textContent: 'ARCADE' }), el('p', { textContent: 'Pick a game.' }), el('div', { className: 'row' }, [el('button', { className: 'btn big', textContent: '💣 Sweeper', onclick: () => openApp(APPS.sweeper) }), el('button', { className: 'btn big', textContent: '📢 Soundboard', onclick: () => openApp(APPS.sound) })])]));
+  body.append(el('div', { className: 'stack' }, [el('h2', { className: 'pixel-title', textContent: 'ARCADE' }), el('p', { textContent: 'Pick a toy.' }), el('div', { className: 'row' }, [el('button', { className: 'btn big', textContent: '📢 Soundboard', onclick: () => openApp(APPS.sound) })])]));
 }
 
 function recycle(body) { body.append(el('div', { className: 'doc' }, [el('p', { textContent: 'Empty. (Nothing to see. Move along.)' })])); }
@@ -152,7 +102,6 @@ const APPS = {
   readme: { id: 'readme', title: 'README.TXT — Notepad', icon: '📄', w: 460, render: html(readme) },
   wiki: { id: 'wiki', title: 'Wiki', icon: '📚', w: 520, render: html(wiki), status: 'Placeholder lore' },
   arcade: { id: 'arcade', title: 'Arcade', icon: '🕹️', w: 360, render: arcade },
-  sweeper: { id: 'sweeper', title: 'SWEEPER.EXE', icon: '💣', w: 420, render: sweeper },
   sound: { id: 'sound', title: 'SOUNDBOARD.EXE', icon: '📢', w: 380, render: soundboard },
   merch: { id: 'merch', title: 'MERCH.EXE', icon: '🛍️', w: 520, render: merchApp, status: 'Placeholder products' },
   tv: { id: 'tv', title: 'MENACE_TV.EXE', icon: '📺', w: 520, render: tv },

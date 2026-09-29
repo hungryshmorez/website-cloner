@@ -1,0 +1,22 @@
+:root{--bg:#141824;--panel:#2d3d44;--edge:#525162;--coral:#fd9978;--gold:#fec837;--text:#b9cbc9}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px "Courier New",monospace;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated;touch-action:none}
+.panel{position:fixed;inset:0;margin:auto;width:min(360px,92vw);height:max-content;background:var(--panel);border:3px solid var(--edge);padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:6px 6px 0 #000a}
+.panel h1{margin:0;color:var(--gold);font-size:20px;letter-spacing:2px}
+.panel p{margin:0}
+label{display:flex;flex-direction:column;gap:4px}
+input{font:inherit;background:#141824;color:#fff;border:2px solid var(--edge);padding:8px}
+.btn{font:inherit;background:var(--coral);color:#141824;border:0;border-bottom:4px solid #b86a4d;padding:8px 14px;cursor:pointer;font-weight:700}
+.btn:active{transform:translateY(2px);border-bottom-width:2px}
+#swatches{display:flex;gap:8px}
+#swatches button{width:28px;height:28px;border:3px solid transparent;cursor:pointer;padding:0}
+#swatches button[aria-checked=true]{border-color:#fff}
+#hud{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+#hud>*{pointer-events:auto}
+#zone{background:#141824cc;border:2px solid var(--edge);padding:6px 10px;color:var(--gold)}
+#chatForm{position:fixed;left:10px;right:10px;bottom:10px}
+#chatForm input{width:min(520px,100%)}
+#log{position:fixed;left:10px;bottom:58px;margin:0;padding:0;list-style:none;max-width:min(520px,90vw);display:flex;flex-direction:column;gap:2px;pointer-events:none}
+#log li{background:#141824bb;padding:2px 8px}
+#log b{color:var(--coral)}
