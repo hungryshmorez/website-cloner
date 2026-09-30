@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>12 Mega Festival</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game" aria-label="Game world"></canvas>
+<div id="hud" hidden>
+  <div id="zone">Festival</div>
+  <button id="mute" class="btn" aria-pressed="false" title="Toggle music">♪</button>
+</div>
+<div id="prompt" hidden></div>
+<button id="act" class="btn" hidden aria-label="Interact">E</button>
+<form id="chatForm" hidden autocomplete="off"><input id="chatInput" maxlength="80" placeholder="Press Enter to chat…" aria-label="Chat message"></form>
+<ol id="log" hidden aria-live="polite"></ol>
+<div id="panel" hidden role="dialog"></div>
+<div id="mgWrap" hidden><div id="mgBar"></div><canvas id="mg" width="320" height="240"></canvas><button class="btn" id="mgClose">Leave game</button></div>
+<form id="join" class="panel">
+  <h1>12 MEGA FESTIVAL</h1>
+  <p>Wander the grounds, find the artists, step into The Complex and hit the Midway arcade.</p>
+  <label>Name <input id="name" maxlength="14" required placeholder="wanderer" autofocus></label>
+  <div id="swatches" role="radiogroup" aria-label="Avatar colour"></div>
+  <button class="btn" type="submit">Enter</button>
+  <small>WASD / arrows or click to move · E to interact · Enter to chat</small>
+</form>
+<script src="maps.js"></script>
+<script src="world.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

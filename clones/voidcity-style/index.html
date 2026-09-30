@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Night Shift City — pixel hangout</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game" aria-label="Game world"></canvas>
+<div id="hud" hidden>
+  <div id="zone">Plaza</div>
+  <button id="mute" class="btn" aria-pressed="false" title="Toggle music">♪</button>
+</div>
+<form id="chatForm" hidden autocomplete="off">
+  <input id="chatInput" maxlength="80" placeholder="Press Enter to chat…" aria-label="Chat message">
+</form>
+<ol id="log" hidden aria-live="polite"></ol>
+<form id="join" class="panel">
+  <h1>NIGHT SHIFT CITY</h1>
+  <p>A tiny pixel hangout. Walk around, hit the club, find your tent.</p>
+  <label>Name <input id="name" maxlength="14" required placeholder="wanderer" autofocus></label>
+  <div id="swatches" role="radiogroup" aria-label="Avatar colour"></div>
+  <button class="btn" type="submit">Enter</button>
+  <small>WASD / arrows to move · click to walk · Enter to chat</small>
+</form>
+<script src="game.js"></script>
+</body>
+</html>
